@@ -1,0 +1,11 @@
+{
+    "types": [
+        "Added",
+        "Changed",
+        "Deprecated",
+        "Removed",
+        "Fixed",
+        "Security",
+        "Meta"
+    ]
+}
