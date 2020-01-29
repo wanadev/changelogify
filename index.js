@@ -25,7 +25,7 @@ if (args.length && args[0] === "add") {
         {
           type: "input",
           name: "title",
-          message: "What's your changelog entry ?",
+          message: "What's your changelog entry?",
           default: " ".concat(args.slice(1)) || undefined
         },
         {
@@ -88,13 +88,13 @@ if (args.length && args[0] === "add") {
         {
             type: "input",
             name: "version",
-            message: "What's the release version ?",
+            message: "What's the release version?",
             default: `v${version}`
         },
         {
             type: "input",
             name: "date",
-            message: "What's the release date ?",
+            message: "What's the release date?",
             default: date
         },
     ];
