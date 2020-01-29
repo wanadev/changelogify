@@ -26,7 +26,7 @@ if (args.length && args[0] === "add") {
           type: "input",
           name: "title",
           message: "What's your changelog entry ?",
-          default: args[1] || undefined
+          default: " ".concat(args.slice(1)) || undefined
         },
         {
           type: 'list',
