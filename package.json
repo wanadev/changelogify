@@ -1,22 +1,22 @@
 {
-  "name": "changelog-manager",
+  "name": "changelogify",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "bin": {
-    "changelog-manager": "index.js"
+    "changelogify": "index.js"
   },
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/robincartier/changelog-manager.git"
+    "url": "git+https://https://github.com/wanadev/changelogify.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/robincartier/changelog-manager/issues"
+    "url": "https://https://github.com/wanadev/changelogify/issues"
   },
-  "homepage": "https://github.com/robincartier/changelog-manager#readme",
+  "homepage": "https://https://github.com/wanadev/changelogify#readme",
   "dependencies": {
     "inquirer": "^7.0.3",
     "js-yaml": "^3.13.1"

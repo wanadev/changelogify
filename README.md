@@ -1,4 +1,4 @@
-# changelog-manager
+# changelogify
 
 A basic changelog manager.
 
