@@ -85,7 +85,6 @@ if (commander.add) {
         process.exit();
     });
     
-    
 } else if (commander.release) {
     const today = new Date();
     const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
@@ -132,8 +131,10 @@ if (commander.add) {
         }, {})
     
         formattedData = config.types.reduce((text, type) => {
-            text += `### ${type}\n`;
-            if (data[type]) data[type].forEach(entry => text += `- ${entry}\n`);
+            if (data[type]) {
+                text += `### ${type}\n`;
+                data[type].forEach(entry => text += `- ${entry}\n`);
+            }
             return text;
         }, "");
     } catch (error) {
