@@ -1,4 +1,4 @@
-const fs = require("fs") ;
+const fs = require("fs");
 
 const inquirer = require("inquirer");
 const commander = require("commander");
@@ -12,6 +12,41 @@ if (!fs.existsSync(packageJSONPath)) {
 }
 const { version } = require(packageJSONPath);
 
+const today = new Date();
+const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
+const questions = {
+    overwrite: {
+        type: "list",
+        name: "overwrite",
+        message: "Changelog entry already exists for this branch. What do you want to do?",
+        choices: ["Overwrite", "Create another entry", "Cancel"],
+    },
+    title: {
+      type: "input",
+      name: "title",
+      message: "What's your changelog entry?",
+      default: (commander.add !== true) ? commander.add : undefined
+    },
+    type: {
+      type: 'list',
+      name: 'type',
+      message: 'Entry type?',
+      choices: config.types,
+    },
+    version: {
+        type: "input",
+        name: "version",
+        message: "What's the release version?",
+        default: `v${version}`
+    },
+    date: {
+        type: "input",
+        name: "date",
+        message: "What's the release date?",
+        default: date
+    },
+};
 
 commander
     .option('-a, --add [message]', 'write the current git branch changelog file')
@@ -20,33 +55,12 @@ commander
 commander.parse(process.argv);
 
 if (commander.add) {
-
-    const questions = [
-        {
-            type: "confirm",
-            name: "overwrite",
-            message: "Changelog entry already exists for this branch. Overwrite?",
-            default: true
-        },
-        {
-          type: "input",
-          name: "title",
-          message: "What's your changelog entry?",
-          default: (commander.add !== true) ? commander.add : undefined
-        },
-        {
-          type: 'list',
-          name: 'type',
-          message: 'Entry type?',
-          choices: config.types,
-        },
-    ];
-
+    let fileDir
     let fileName;
     let filePath;
 
     try {
-        const fileDir = `${process.cwd()}/changelogs/unreleased/`;
+        fileDir = `${process.cwd()}/changelogs/unreleased/`;
 
         // create dir if doesn't exist
         fs.existsSync(fileDir) || fs.mkdirSync(fileDir, { recursive: true });
@@ -58,21 +72,30 @@ if (commander.add) {
         console.log(error);
         process.exit();
     }
-
-    // check changelog entry for this git branch 
-    (fs.existsSync(filePath) 
-        ? inquirer.prompt(questions[0]).then(({ overwrite }) => {
-            if (!overwrite) process.exit();
+ 
+    (fs.existsSync(filePath)
+        ? inquirer.prompt(questions.overwrite).then(({ overwrite }) => {
+            if (overwrite === "Cancel") {
+                process.exit();
+            }
+            else if (overwrite !== "Overwrite") {
+                let i = 1
+                while(fs.existsSync(filePath)) {
+                    i++;
+                    filePath = `${fileDir}${fileName}_${i}.json`;
+                }
+                fileName = `${fileName}_${i}`;
+            }
         })
         : Promise.resolve()
     ).then(() => {
-        return inquirer.prompt(questions[1]).then(({ title }) => {
+        return inquirer.prompt(questions.title).then(({ title }) => {
             if (title === "") {
                 console.log('Changelog title cannot be empty');
                 process.exit();
             };
 
-            return inquirer.prompt(questions[2]).then(({ type }) => {
+            return inquirer.prompt(questions.type).then(({ type }) => {
                 const data = JSON.stringify({ title, type }, null, '  ');
                 fs.writeFile(filePath, data, (error) => { 
                     if (error) throw error;
@@ -86,24 +109,6 @@ if (commander.add) {
     });
     
 } else if (commander.release) {
-    const today = new Date();
-    const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-
-    const questions = [
-        {
-            type: "input",
-            name: "version",
-            message: "What's the release version?",
-            default: `v${version}`
-        },
-        {
-            type: "input",
-            name: "date",
-            message: "What's the release date?",
-            default: date
-        },
-    ];
-
     let beginningText;
     let endText = "";
     let formattedData;
@@ -142,7 +147,7 @@ if (commander.add) {
         process.exit(); 
     }
     
-    inquirer.prompt(questions).then(({ version, date }) => {
+    inquirer.prompt([questions.version, questions.date]).then(({ version, date }) => {
         const data = `## [${version}] - ${date}\n\n${formattedData}\n`;
         const text = `${beginningText}${data}${endText}`;
 
