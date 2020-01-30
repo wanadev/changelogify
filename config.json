@@ -7,5 +7,6 @@
         "Fixed",
         "Security",
         "Meta"
-    ]
+    ],
+    "gitIssueTemplate": "www.test.com/issues/branch"
 }

@@ -124,16 +124,22 @@ if (commander.add) {
     
         const changelogs = fs.readdirSync(fileDir).map(file => JSON.parse(fs.readFileSync(`${fileDir}/${file}`, 'utf8')));
         
-        const data = changelogs.reduce((acc, { title, type }) => {
-            if (!acc[type]) acc[type] = [title];
-            else acc[type].push(title);
+        const data = changelogs.reduce((acc, { title, type, branch }) => {
+            if (!acc[type]) acc[type] = [];
+            acc[type].push({ title, branch});
             return acc;
         }, {})
     
         formattedData = config.types.reduce((text, type) => {
             if (data[type]) {
                 text += `### ${type}\n`;
-                data[type].forEach(entry => text += `- ${entry}\n`);
+                data[type].forEach(({ title, branch }) => {
+                    if (branch === "" || !config.gitIssueTemplate) {
+                        return text += `- ${title}\n`;
+                    }
+                    const link = config.gitIssueTemplate.replace(/branch/gi, branch);
+                    return text += `- ${title} - ${link}\n`;
+                });
             }
             return text;
         }, "");
