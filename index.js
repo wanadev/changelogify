@@ -1,6 +1,7 @@
 const fs = require("fs") ;
 
 const inquirer = require("inquirer");
+const commander = require("commander");
 
 const config = require("./config.json");
 
@@ -12,9 +13,14 @@ if (!fs.existsSync(packageJSONPath)) {
 const { version } = require(packageJSONPath);
 
 
-const args = process.argv.slice(2);
+commander
+    .option('-a, --add [message]', 'write the current git branch changelog file')
+    .option('-r, --release', 'concat changelogs file into CHANGELOG.md');
 
-if (args.length && args[0] === "add") {
+commander.parse(process.argv);
+
+if (commander.add) {
+
     const questions = [
         {
             type: "confirm",
@@ -26,12 +32,12 @@ if (args.length && args[0] === "add") {
           type: "input",
           name: "title",
           message: "What's your changelog entry?",
-          default: " ".concat(args.slice(1)) || undefined
+          default: (commander.add !== true) ? commander.add : undefined
         },
         {
           type: 'list',
           name: 'type',
-          message: 'Entry type ?',
+          message: 'Entry type?',
           choices: config.types,
         },
     ];
@@ -80,7 +86,7 @@ if (args.length && args[0] === "add") {
     });
     
     
-} else if (args.length && args[0] === "release") {
+} else if (commander.release) {
     const today = new Date();
     const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 
@@ -160,5 +166,5 @@ if (args.length && args[0] === "add") {
     });
     
 } else {
-    console.log("Usage:\n - changelog-manager add [changelog message]\n - changelog-manager release");
+    commander.help();
 }

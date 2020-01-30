@@ -8,21 +8,21 @@ Add the package to your project as a dev dependency:
 
     npm install -D https://github.com/wanadev/changelogify
 
-Add the lib to your package scripts:
+And to your package scripts:
 
     "scripts": {
-        "changelogify": "node node_modules/.bin/changelogify"
+        "changelog": "node node_modules/.bin/changelogify"
     },
 
 ## Usage
 
-    npm run changelogify [options]
+    npm run changelog [options]
 
     Options: 
-        add [changelog message] Write/overwrite the current git branch changelog file 
-                                into ./changelogs/unreleased/
-        release                 Concat changelogs file from ./changelogs/unreleased/,
-                                add them into ./CHANGELOG.md and delete them
+        -a, --add [message] Write/overwrite the current git branch changelog file 
+                            into ./changelogs/unreleased/
+        -r, --release       Concat changelogs file from ./changelogs/unreleased/,
+                            add them into ./CHANGELOG.md and delete them
 
 ## Example
 

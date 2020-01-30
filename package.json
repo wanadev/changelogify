@@ -18,6 +18,7 @@
   },
   "homepage": "https://https://github.com/wanadev/changelogify#readme",
   "dependencies": {
+    "commander": "^4.1.0",
     "inquirer": "^7.0.3",
     "js-yaml": "^3.13.1"
   }
