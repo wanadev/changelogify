@@ -16,12 +16,6 @@ const today = new Date();
 const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 
 const questions = {
-    overwrite: {
-        type: "list",
-        name: "overwrite",
-        message: "Changelog entry already exists for this branch. What do you want to do?",
-        choices: ["Overwrite", "Create another entry", "Cancel"],
-    },
     title: {
       type: "input",
       name: "title",
@@ -68,40 +62,31 @@ if (commander.add) {
         const gitRef = fs.readFileSync(".git/HEAD").toString();
         fileName = gitRef.match(/refs\/heads\/((\w|-)+)/)[1];
         filePath = `${fileDir}${fileName}.json`;
+
+        // if file already exists, search for an available name
+        let i = 1
+        while(fs.existsSync(filePath)) {
+            i++;
+            filePath = `${fileDir}${fileName}_${i}.json`;
+        }
+        fileName = `${fileName}_${i}`;
     } catch (error) {
         console.log(error);
         process.exit();
     }
  
-    (fs.existsSync(filePath)
-        ? inquirer.prompt(questions.overwrite).then(({ overwrite }) => {
-            if (overwrite === "Cancel") {
-                process.exit();
-            }
-            else if (overwrite !== "Overwrite") {
-                let i = 1
-                while(fs.existsSync(filePath)) {
-                    i++;
-                    filePath = `${fileDir}${fileName}_${i}.json`;
-                }
-                fileName = `${fileName}_${i}`;
-            }
-        })
-        : Promise.resolve()
-    ).then(() => {
-        return inquirer.prompt(questions.title).then(({ title }) => {
-            if (title === "") {
-                console.log('Changelog title cannot be empty');
-                process.exit();
-            };
+    inquirer.prompt(questions.title).then(({ title }) => {
+        if (title === "") {
+            console.log('Changelog title cannot be empty');
+            process.exit();
+        };
 
-            return inquirer.prompt(questions.type).then(({ type }) => {
-                const data = JSON.stringify({ title, type }, null, '  ');
-                fs.writeFile(filePath, data, (error) => { 
-                    if (error) throw error;
-                });
-                console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json`);
+        return inquirer.prompt(questions.type).then(({ type }) => {
+            const data = JSON.stringify({ title, type }, null, '  ');
+            fs.writeFile(filePath, data, (error) => { 
+                if (error) throw error;
             });
+            console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json`);
         });
     }).catch((error) => {
         console.log(error);
