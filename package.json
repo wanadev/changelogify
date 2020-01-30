@@ -1,17 +1,32 @@
 {
   "name": "changelogify",
   "version": "1.0.0",
-  "description": "",
+  "description": "A basic changelog manager made to avoid conflicts at git merge",
   "main": "index.js",
   "bin": {
     "changelogify": "index.js"
   },
-  "scripts": {},
+  "author": {
+    "name": "Wanadev",
+    "url": "http://wanadev.fr/"
+  },
+  "maintainers": [
+    {
+      "name": "robincartier",
+      "email": "rcartier@wanadev.fr"
+    },
+    {
+      "name": "wanadev",
+      "email": "it@wanadev.fr"
+    }
+  ],
+  "keywords": [
+    "changelog"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://https://github.com/wanadev/changelogify.git"
   },
-  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://https://github.com/wanadev/changelogify/issues"
