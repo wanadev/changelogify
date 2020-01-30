@@ -15,6 +15,11 @@ const { version } = require(packageJSONPath);
 const today = new Date();
 const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 
+const gitRef = fs.readFileSync(".git/HEAD").toString();
+let branchNumber;
+branchNumber = gitRef.match(/(\d)+/);
+branchNumber = branchNumber ? branchNumber[0] : undefined;
+
 const questions = {
     title: {
       type: "input",
@@ -27,6 +32,12 @@ const questions = {
       name: 'type',
       message: 'Entry type?',
       choices: config.types,
+    },
+    branch: {
+        type: "input",
+        name: "branch",
+        message: "What's your git branch number? (Optional)",
+        default: branchNumber
     },
     version: {
         type: "input",
@@ -59,7 +70,6 @@ if (commander.add) {
         // create dir if doesn't exist
         fs.existsSync(fileDir) || fs.mkdirSync(fileDir, { recursive: true });
         
-        const gitRef = fs.readFileSync(".git/HEAD").toString();
         fileName = gitRef.match(/refs\/heads\/((\w|-)+)/)[1];
         filePath = `${fileDir}${fileName}.json`;
 
@@ -81,8 +91,8 @@ if (commander.add) {
             process.exit();
         };
 
-        return inquirer.prompt(questions.type).then(({ type }) => {
-            const data = JSON.stringify({ title, type }, null, '  ');
+        return inquirer.prompt([questions.type, questions.branch]).then(({ type, branch }) => {
+            const data = JSON.stringify({ title, type, branch }, null, '  ');
             fs.writeFile(filePath, data, (error) => { 
                 if (error) throw error;
             });
