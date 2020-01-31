@@ -8,5 +8,5 @@
         "Security",
         "Meta"
     ],
-    "gitIssueTemplate": "www.test.com/issues/branch"
+    "gitIssueTemplate": "[BRANCH](www.test.com/issues/BRANCH)"
 }

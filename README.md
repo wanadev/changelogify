@@ -18,11 +18,13 @@ And to your package scripts:
 
     npm run changelog [options]
 
-    Options: 
+    Options:
+        -i, --init          Copy default configuration file into package to be overwriten.
+                            If the user configuration file is not found, default one will be used.
         -a, --add [message] Write/overwrite the current git branch changelog file 
                             into ./changelogs/unreleased/
         -r, --release       Concat changelogs file from ./changelogs/unreleased/,
-                            add them into ./CHANGELOG.md and delete them
+                            add them into ./CHANGELOG.md and delete them.
 
 ## Example
 

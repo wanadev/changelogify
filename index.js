@@ -3,7 +3,8 @@ const fs = require("fs");
 const inquirer = require("inquirer");
 const commander = require("commander");
 
-const config = require("./config.json");
+const configFile = `${process.cwd()}/changelogs/config.json`;
+const config = fs.existsSync(configFile) ? require(configFile) : require("./config.json");
 
 const packageJSONPath = `${process.cwd()}/package.json`;
 if (!fs.existsSync(packageJSONPath)) {
@@ -21,6 +22,12 @@ branchNumber = gitRef.match(/(\d)+/);
 branchNumber = branchNumber ? branchNumber[0] : undefined;
 
 const questions = {
+    writeConfig: {
+        type: "confirm",
+        name: "writeConfig",
+        message: "Changelog config already exists in your project. Overwrite?",
+        default: false
+      },
     title: {
       type: "input",
       name: "title",
@@ -54,13 +61,40 @@ const questions = {
 };
 
 commander
-    .option('-a, --add [message]', 'write the current git branch changelog file')
-    .option('-r, --release', 'concat changelogs file into CHANGELOG.md');
+    .option("-i, --init", "copy default config into package")
+    .option("-a, --add [message]", "write the current git branch changelog file")
+    .option("-r, --release", "concat changelogs file into CHANGELOG.md");
 
 commander.parse(process.argv);
 
-if (commander.add) {
-    let fileDir
+if (commander.init) {
+    let fileDir;
+    let filePath;
+
+    try {
+        fileDir = `${process.cwd()}/changelogs/`;
+
+        // create dir if doesn't exist
+        fs.existsSync(fileDir) || fs.mkdirSync(fileDir, { recursive: true });
+        
+        fileName = gitRef.match(/refs\/heads\/((\w|-)+)/)[1];
+        filePath = `${fileDir}config.json`;
+
+        (fs.existsSync(filePath)
+            ? inquirer.prompt(questions.writeConfig)
+            : Promise.resolve({ writeConfig: true }))
+            .then(({ writeConfig }) => {
+                if(!writeConfig) return;
+                fs.copyFileSync(`${__dirname}/config.json`, filePath, { encoding:'utf8', flag:'w' });
+                console.log(`\nDefault configuration copied.\nYou can overwrite it in ${filePath}`);
+            });
+    } catch (error) {
+        console.log(error);
+        process.exit();
+    }
+
+} else if (commander.add) {
+    let fileDir;
     let fileName;
     let filePath;
 
@@ -92,10 +126,8 @@ if (commander.add) {
         };
 
         return inquirer.prompt([questions.type, questions.branch]).then(({ type, branch }) => {
-            const data = JSON.stringify({ title, type, branch }, null, '  ');
-            fs.writeFile(filePath, data, (error) => { 
-                if (error) throw error;
-            });
+            const data = JSON.stringify({ title, type, branch }, null, 4);
+            fs.writeFileSync(filePath, data);
             console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json`);
         });
     }).catch((error) => {
@@ -137,7 +169,7 @@ if (commander.add) {
                     if (branch === "" || !config.gitIssueTemplate) {
                         return text += `- ${title}\n`;
                     }
-                    const link = config.gitIssueTemplate.replace(/branch/gi, branch);
+                    const link = config.gitIssueTemplate.replace(/BRANCH/g, branch);
                     return text += `- ${title} - ${link}\n`;
                 });
             }
