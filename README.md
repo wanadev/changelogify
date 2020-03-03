@@ -65,11 +65,6 @@ will be concatenated into `CHANGELOG.md`
     ### Added
     - feature 1
     - feature 2
-    ### Changed
-    ### Deprecated
-    ### Removed
-    ### Fixed
-    ### Security
     ### Meta
     - lint
 
