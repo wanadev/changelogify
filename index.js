@@ -2,6 +2,7 @@ const fs = require("fs");
 
 const inquirer = require("inquirer");
 const commander = require("commander");
+const git = require("simple-git/promise");
 
 const configFile = `${process.cwd()}/changelogs/config.json`;
 const config = fs.existsSync(configFile) ? require(configFile) : require("./config.json");
@@ -25,7 +26,7 @@ const questions = {
     writeConfig: {
         type: "confirm",
         name: "writeConfig",
-        message: "Changelog config already exists in your project. Overwrite?",
+        message: "Changelog config already exists in your project. Write new settings?",
         default: false
       },
     title: {
@@ -80,14 +81,22 @@ if (commander.init) {
         fileName = gitRef.match(/refs\/heads\/((\w|-)+)/)[1];
         filePath = `${fileDir}config.json`;
 
-        (fs.existsSync(filePath)
-            ? inquirer.prompt(questions.writeConfig)
-            : Promise.resolve({ writeConfig: true }))
-            .then(({ writeConfig }) => {
-                if(!writeConfig) return;
-                fs.copyFileSync(`${__dirname}/config.json`, filePath, { encoding:'utf8', flag:'w' });
-                console.log(`\nDefault configuration copied.\nYou can overwrite it in ${filePath}`);
-            });
+        if (!fs.existsSync(filePath)) {
+            fs.copyFileSync(`${__dirname}/config.json`, filePath, { encoding:'utf8', flag:'w' });
+            console.log(`\nDefault configuration copied.\nYou can overwrite it in ${filePath}`);
+        } else {
+            inquirer.prompt(questions.writeConfig)
+                .then(({ writeConfig }) => {
+                    if(!writeConfig) return;
+                    const defaultConfig = require("./config.json");
+                    const newConfig = Object.assign({}, defaultConfig, config);
+                    const data = JSON.stringify(newConfig, null, 4);
+                    fs.writeFile(filePath, data, (error) => { 
+                        if (error) throw error; 
+                    });
+                    console.log(`\nNew configuration append.\nYou can overwrite it in ${filePath}`);
+                });
+        }
     } catch (error) {
         console.log(error);
         process.exit();
@@ -128,7 +137,15 @@ if (commander.init) {
         return inquirer.prompt([questions.type, questions.branch]).then(({ type, branch }) => {
             const data = JSON.stringify({ title, type, branch }, null, 4);
             fs.writeFileSync(filePath, data);
-            console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json`);
+            console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json\n`);
+
+            if (config.autoCommitAdd) {
+                const message = config.changelogMessageAdd || "changelog";
+                return git()
+                        .add([filePath, `${process.cwd()}/changelogs/config.json`])
+                        .then(() => git().commit(message)) // could not chain git.add().commit() for unknown reason
+                        .then(() => console.log("Changelog committed, use \`git push\` to write it remotely"));
+            }
         });
     }).catch((error) => {
         console.log(error);
@@ -190,7 +207,7 @@ if (commander.init) {
         console.log(`${data}\nappended in /CHANGELOG.md`);
     }).then(() => {
         // delete JSON changelog files
-        fs.readdirSync(fileDir).forEach(file => {
+        fs.readdirSync(fileDir).forEach((file) => {
             fs.access(`${fileDir}/${file}`, error => {
                 if (!error) {
                     fs.unlinkSync(`${fileDir}/${file}`, (error) => { throw error });
@@ -198,7 +215,15 @@ if (commander.init) {
                     throw error;
                 }
             });
-        })
+        });
+    }).then(() => {
+        if (config.autoCommitRelease) {
+            const message = config.changelogMessageRelease || "changelog";
+            return git()
+                .add([`${fileDir}/*`, "CHANGELOG.md", `${process.cwd()}/changelogs/config.json`])
+                .then(() => git().commit(message)) // could not chain git.add().commit() for unknown reason
+                .then(() => console.log("Changelog committed, use \`git push\` to write it remotely"));
+        }
     }).catch((error) => {
         console.log(error);
         process.exit();

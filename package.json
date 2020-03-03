@@ -34,7 +34,8 @@
   "homepage": "https://https://github.com/wanadev/changelogify#readme",
   "dependencies": {
     "commander": "^4.1.0",
-    "inquirer": "^7.0.3"
+    "inquirer": "^7.0.3",
+    "simple-git": "^1.131.0"
   },
   "devDependencies": {}
 }
