@@ -25,6 +25,7 @@ And to your package scripts:
                             into ./changelogs/unreleased/
         -r, --release       Concat changelogs file from ./changelogs/unreleased/,
                             add them into ./CHANGELOG.md and delete them.
+        -s, --silent        Run in silent mode using default parameters
 
 ## Example
 
@@ -68,3 +69,19 @@ will be concatenated into `CHANGELOG.md`
     ### Meta
     - lint
 
+### Silent mode
+
+You can run the library in silent mode.
+
+```bash
+# Add
+$ npm run changelog -- -sa message
+# or
+$ npm run changelog -- -a message -s
+
+# Release
+$ npm run changelog -- -sr
+
+# CAUTION: `npm run changelog -- -as` won't work, as the "s"
+# is taken as a changelog message (same for `ar`)
+```
