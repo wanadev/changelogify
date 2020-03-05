@@ -140,7 +140,9 @@ if (commander.init) {
             console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json\n`);
 
             if (config.autoCommitAdd) {
-                const message = config.changelogMessageAdd || "changelog";
+                const message = config.changelogMessageAdd && branch
+                    ? config.changelogMessageAdd.replace(/BRANCH/g, branch)
+                    : "changelog";
                 return git()
                         .add([filePath, `${process.cwd()}/changelogs/config.json`])
                         .then(() => git().commit(message)) // could not chain git.add().commit() for unknown reason
@@ -218,7 +220,9 @@ if (commander.init) {
         });
     }).then(() => {
         if (config.autoCommitRelease) {
-            const message = config.changelogMessageRelease || "changelog";
+            const message = config.changelogMessageRelease
+                ? config.changelogMessageRelease.replace(/BRANCH/g, branchNumber)
+                : "changelog";
             return git()
                 .add([`${fileDir}/*`, "CHANGELOG.md", `${process.cwd()}/changelogs/config.json`])
                 .then(() => git().commit(message)) // could not chain git.add().commit() for unknown reason
