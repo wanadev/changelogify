@@ -8,5 +8,9 @@
         "Security",
         "Meta"
     ],
-    "gitIssueTemplate": "[BRANCH](www.test.com/issues/BRANCH)"
+    "gitIssueTemplate": "[BRANCH](www.test.com/issues/BRANCH)",
+    "autoCommitAdd": true,
+    "changelogMessageAdd": "changelog",
+    "autoCommitRelease": true,
+    "changelogMessageRelease": "changelog"
 }
