@@ -4,193 +4,223 @@ const inquirer = require("inquirer");
 const commander = require("commander");
 const git = require("simple-git/promise");
 
-const configFile = `${process.cwd()}/changelogs/config.json`;
-const config = fs.existsSync(configFile) ? require(configFile) : require("./config.json");
+async function begin() {
+    const paths = {
+        defaultConfig: `${__dirname}/config.json`,
+        userConfig: `${process.cwd()}/changelogs/config.json`,
+        changelogsDir: `${process.cwd()}/changelogs/`,
+        unrealeasedChangelogsDir: `${process.cwd()}/changelogs/unreleased/`,
+        changelog: `${process.cwd()}/CHANGELOG.md`,
+        emptyChangelog: `${__dirname}/EMPTY_CHANGELOG.md`,
+    };
 
-const packageJSONPath = `${process.cwd()}/package.json`;
-if (!fs.existsSync(packageJSONPath)) {
-    console.log("Cannot find package.json in project");
-    process.exit();
-}
-const { version } = require(packageJSONPath);
+    const config = fs.existsSync(paths.userConfig) ? require(paths.userConfig) : require(paths.defaultConfig);
 
-const today = new Date();
-const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    const gitBranch = await git().silent(true).raw(["symbolic-ref", "--short", "HEAD"]);
+    let branchNumber = gitBranch.match(/(\d)+/);
+    branchNumber = branchNumber ? branchNumber[0] : undefined;
+    
+    const packageJSONPath = `${process.cwd()}/package.json`;
+    if (!fs.existsSync(packageJSONPath)) {
+        console.log("Cannot find package.json in project");
+        process.exit();
+    }
+    const { version } = require(packageJSONPath);
+    const currentVersion = `v${version}`;
 
-const gitRef = fs.readFileSync(".git/HEAD").toString();
-let branchNumber;
-branchNumber = gitRef.match(/(\d)+/);
-branchNumber = branchNumber ? branchNumber[0] : undefined;
+    const today = new Date();
+    const currentDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 
-commander
-    .option("-i, --init", "copy default config into package")
-    .option("-a, --add [message]", "write the current git branch changelog file")
-    .option("-r, --release", "concat changelogs file into CHANGELOG.md")
-    .option("-s, --silent", "run in silent mode using default parameters");
+    const questions = {
+        writeConfig: {
+            type: "confirm",
+            name: "writeConfig",
+            message: "Changelog config already exists in your project. Write new settings?",
+            default: false
+        },
+        message: {
+            type: "input",
+            name: "message",
+            message: "What's your changelog entry?",
+        },
+        type: {
+            type: 'list',
+            name: 'type',
+            message: 'Entry type?',
+            choices: config.types,
+        },
+        branch: {
+            type: "input",
+            name: "branch",
+            message: "What's your git branch number? (Optional)",
+            default: branchNumber
+        },
+        version: {
+            type: "input",
+            name: "version",
+            message: "What's the release version?",
+            default: currentVersion
+        },
+        date: {
+            type: "input",
+            name: "date",
+            message: "What's the release date?",
+            default: currentDate
+        },
+    };
 
-commander.parse(process.argv);
-
-const questions = {
-    writeConfig: {
-        type: "confirm",
-        name: "writeConfig",
-        message: "Changelog config already exists in your project. Write new settings?",
-        default: false
-      },
-    title: {
-      type: "input",
-      name: "title",
-      message: "What's your changelog entry?",
-      default: (commander.add !== true) ? commander.add : undefined
-    },
-    type: {
-      type: 'list',
-      name: 'type',
-      message: 'Entry type?',
-      choices: config.types,
-    },
-    branch: {
-        type: "input",
-        name: "branch",
-        message: "What's your git branch number? (Optional)",
-        default: branchNumber
-    },
-    version: {
-        type: "input",
-        name: "version",
-        message: "What's the release version?",
-        default: `v${version}`
-    },
-    date: {
-        type: "input",
-        name: "date",
-        message: "What's the release date?",
-        default: date
-    },
+    return {
+        paths, 
+        config,
+        gitBranch,
+        branchNumber,
+        questions,
+        currentVersion, 
+        currentDate,
+    }
 };
 
-if (commander.init) {
-    let fileDir;
-    let filePath;
-
+async function init() {
     try {
-        fileDir = `${process.cwd()}/changelogs/`;
+        const {
+            paths, 
+            config,
+            questions,
+        } = await begin();
 
         // create dir if doesn't exist
-        fs.existsSync(fileDir) || fs.mkdirSync(fileDir, { recursive: true });
-        
-        fileName = gitRef.match(/refs\/heads\/((\w|-)+)/)[1];
-        filePath = `${fileDir}config.json`;
+        fs.existsSync(paths.changelogsDir) || fs.mkdirSync(paths.changelogsDir);
 
-        if (!fs.existsSync(filePath)) {
-            fs.copyFileSync(`${__dirname}/config.json`, filePath, { encoding:'utf8', flag:'w' });
-            console.log(`\nDefault configuration copied.\nYou can overwrite it in ${filePath}`);
+        if (!fs.existsSync(paths.userConfig)) {
+            fs.copyFileSync(paths.defaultConfig, paths.userConfig, { encoding:'utf8', flag:'w' });
+            console.log(`\nDefault configuration copied.\nYou can overwrite it in ${paths.userConfig}`);
         } else {
-            inquirer.prompt(questions.writeConfig)
-                .then(({ writeConfig }) => {
-                    if(!writeConfig) return;
-                    const defaultConfig = require("./config.json");
-                    const newConfig = Object.assign({}, defaultConfig, config);
-                    const data = JSON.stringify(newConfig, null, 4);
-                    fs.writeFile(filePath, data, (error) => { 
-                        if (error) throw error; 
-                    });
-                    console.log(`\nNew configuration append.\nYou can overwrite it in ${filePath}`);
-                });
+            const { writeConfig } = await inquirer.prompt(questions.writeConfig);
+            if(!writeConfig) return;
+            const defaultConfig = require(paths.defaultConfig);
+            const newConfig = Object.assign({}, defaultConfig, config);
+            const data = JSON.stringify(newConfig, null, 4);
+            fs.writeFile(paths.userConfig, data, (error) => { 
+                if (error) throw error; 
+            });
+            console.log(`\nNew configuration append.\nYou can overwrite it in ${paths.userConfig}`);
         }
     } catch (error) {
         console.log(error);
         process.exit();
     }
+};
 
-} else if (commander.add) {
-    let fileDir;
-    let fileName;
-    let filePath;
+async function add({ message, type, branch, silent }) {
+
+    if (silent && (!message || !type)) {
+        console.log("In silent mode, log message, type and branch number need to be provided in the command line");
+        console.log("In silent mode, ...") // TODO
+        process.exit();
+    }
 
     try {
-        fileDir = `${process.cwd()}/changelogs/unreleased/`;
-
+        const {
+            paths, 
+            config,
+            gitBranch,
+            branchNumber,
+            questions,
+        } = await begin();
+    
         // create dir if doesn't exist
-        fs.existsSync(fileDir) || fs.mkdirSync(fileDir, { recursive: true });
+        fs.existsSync(paths.unrealeasedChangelogsDir) || fs.mkdirSync(paths.unrealeasedChangelogsDir, { recursive: true });
         
-        fileName = gitRef.match(/refs\/heads\/((\w|-)+)/)[1];
-        filePath = `${fileDir}${fileName}.json`;
+        fileName = gitBranch.match(/((\w|-)+)/)[1];
 
         // if file already exists, search for an available name
         let i = 1
+        filePath = `${paths.unrealeasedChangelogsDir}${fileName}_${i}.json`;
+
         while(fs.existsSync(filePath)) {
             i++;
-            filePath = `${fileDir}${fileName}_${i}.json`;
+            filePath = `${paths.unrealeasedChangelogsDir}${fileName}_${i}.json`;
         }
         fileName = `${fileName}_${i}`;
+    
+        if (!message) {
+            answers = await inquirer.prompt(questions.message);
+            message = answers.message;
+        }
+        if (message === "" || !message) {
+            console.log('Changelog title cannot be empty');
+            process.exit();
+        };
+    
+        if (!type) {
+            const answers = await inquirer.prompt(questions.type);
+            type = answers.type;
+        }
+
+        if (!branch) {
+            if (silent) branch = branchNumber;
+            else {
+                const answers = await inquirer.prompt(questions.branch);
+            branch = answers.branch;
+            }
+        }
+
+        const data = JSON.stringify({ message, type, branch }, null, 4);
+        fs.writeFileSync(filePath, data);
+        if (!silent) console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json\n`);
+    
+        if (config.autoCommitAdd) {
+            const commitMessage = config.changelogMessageAdd && branch
+                ? config.changelogMessageAdd.replace(/BRANCH/g, branch)
+                : "changelog";
+            await git().silent(true).add([filePath, paths.userConfig]);
+            await git().silent(true).commit(commitMessage);
+            if (!silent) console.log("Changelog committed, use \`git push\` to write it remotely");
+        }
     } catch (error) {
         console.log(error);
         process.exit();
     }
+};
 
-    (commander.silent
-        ? Promise.resolve({ title: (commander.add !== true ? commander.add : "") })
-        : inquirer.prompt(questions.title)
-    ).then(({ title }) => {
-        if (title === "") {
-            console.log('Changelog title cannot be empty');
-            process.exit();
-        };
+async function release({ releaseVersion, date, silent }) {
 
-        return (commander.silent
-            ? Promise.resolve({ title, type: config.types, branch: branchNumber })
-            : inquirer.prompt([questions.type, questions.branch])
-        ).then(({ type, branch }) => {
-            const data = JSON.stringify({ title, type, branch }, null, 4);
-            fs.writeFileSync(filePath, data);
-            if (!commander.silent) console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json\n`);
-            return branch;
-        }).then((branch) => {
-            if (config.autoCommitAdd) {
-                const message = config.changelogMessageAdd && branch
-                    ? config.changelogMessageAdd.replace(/BRANCH/g, branch)
-                    : "changelog";
-                return git().silent(true)
-                        .add([filePath, `${process.cwd()}/changelogs/config.json`])
-                        .then(() => git().commit(message)) // could not chain git.add().commit() for unknown reason
-                        .then(() => {
-                            if (!commander.silent) console.log("Changelog committed, use \`git push\` to write it remotely");
-                        });
-            }
-        });
-    }).catch((error) => {
-        console.log(error);
-        process.exit();
-    });
-    
-} else if (commander.release) {
-    let beginningText;
-    let endText = "";
-    let formattedData;
-    const filePath = `${process.cwd()}/CHANGELOG.md`;
-    const fileDir = `${process.cwd()}/changelogs/unreleased/`;
+    // if (silent && (!releaseVersion || !date)) {
+    //     console.log("In silent mode, release version and date need to be provided in the command line");
+    //     process.exit();
+    // }
 
     try {
+        const {
+            paths, 
+            config,
+            questions,
+            currentVersion,
+            currentDate,
+        } = await begin();
+
+        let beginningText;
+        let endText = "";
+        let formattedData;
         let changelog;
         
-        if (fs.existsSync(filePath)) {
-            changelog = fs.readFileSync(filePath, 'utf8');
+        if (fs.existsSync(paths.changelog)) {
+            changelog = fs.readFileSync(paths.changelog, 'utf8');
             const match = changelog.toString().match(/((.|\s)+?){1}((## (.|\s)+)|\Z)/);
             beginningText = match[1];
             endText = match[3];
         } else {
-            beginningText = fs.readFileSync(`${__dirname}/EMPTY_CHANGELOG.md`, 'utf8');
+            beginningText = fs.readFileSync(paths.emptyChangelog, 'utf8');
         }
-    
-        const changelogs = fs.readdirSync(fileDir).map(file => JSON.parse(fs.readFileSync(`${fileDir}/${file}`, 'utf8')));
+
+        const changelogs = fs.readdirSync(paths.unrealeasedChangelogsDir).map(file => JSON.parse(fs.readFileSync(`${paths.unrealeasedChangelogsDir}${file}`, 'utf8')));
         
         const data = changelogs.reduce((acc, { title, type, branch }) => {
             if (!acc[type]) acc[type] = [];
-            acc[type].push({ title, branch});
+            acc[type].push({ title, branch });
             return acc;
         }, {})
-    
+
         formattedData = config.types.reduce((text, type) => {
             if (data[type]) {
                 text += `### ${type}\n`;
@@ -204,50 +234,78 @@ if (commander.init) {
             }
             return text;
         }, "");
-    } catch (error) {
-        console.error(error);
-        process.exit(); 
-    }
 
-    (commander.silent
-        ? Promise.resolve({ version: `v${version}`, date })
-        : inquirer.prompt([questions.version, questions.date])
-    ).then(({ version, date }) => {
-        const data = `## [${version}] - ${date}\n\n${formattedData}\n`;
-        const text = `${beginningText}${data}${endText}`;
+        if (!releaseVersion) {
+            if (silent) releaseVersion = currentVersion;
+            else {
+                const answers = await inquirer.prompt(questions.version);
+                releaseVersion = answers.version;
+            }
+        }
 
-        fs.writeFile(filePath, text, (error) => { 
+        if (!date) {
+            if (silent) date = currentDate;
+            else {
+                const answers = await inquirer.prompt(questions.date);
+                date = answers.date;
+            }
+        }
+
+        const formattedChangelogs = `## [${releaseVersion}] - ${date}\n\n${formattedData}\n`;
+
+        const text = `${beginningText}${formattedChangelogs}${endText}`;
+
+        fs.writeFile(paths.changelog, text, (error) => { 
             if (error) throw error; 
         });
-        if (!commander.silent) console.log(`${data}\nappended in /CHANGELOG.md`);
-    }).then(() => {
+        if (!silent) console.log(`${formattedChangelogs}\nappended in /CHANGELOG.md`);
+
         // delete JSON changelog files
-        fs.readdirSync(fileDir).forEach((file) => {
-            fs.access(`${fileDir}/${file}`, error => {
+        fs.readdirSync(paths.unrealeasedChangelogsDir).forEach((file) => {
+            fs.access(`${paths.unrealeasedChangelogsDir}${file}`, error => {
                 if (!error) {
-                    fs.unlinkSync(`${fileDir}/${file}`, (error) => { throw error });
+                    fs.unlinkSync(`${paths.unrealeasedChangelogsDir}/${file}`, (error) => { throw error });
                 } else {
                     throw error;
                 }
             });
         });
-    }).then(() => {
+
         if (config.autoCommitRelease) {
-            const message = config.changelogMessageRelease
-                ? config.changelogMessageRelease.replace(/BRANCH/g, branchNumber)
-                : "changelog";
-            return git().silent(true)
-                .add([`${fileDir}/*`, "CHANGELOG.md", `${process.cwd()}/changelogs/config.json`])
-                .then(() => git().commit(message)) // could not chain git.add().commit() for unknown reason
-                .then(() => {
-                    if (!commander.silent) console.log("Changelog committed, use \`git push\` to write it remotely");
-                });
+            const message = config.changelogMessageRelease || "changelog";
+            await git().silent(true).add([paths.unrealeasedChangelogsDir, paths.changelog, paths.userConfig]);
+            await git().silent(true).commit(message);
+            if (!silent) console.log("Changelog committed, use \`git push\` to write it remotely");
         }
-    }).catch((error) => {
+    } catch (error) {
         console.log(error);
         process.exit();
-    });
-    
-} else {
-    commander.help();
-}
+    }
+};
+
+async function main() {
+
+    commander
+        .command("init")
+        .description("copy default config into package")
+        .action(init);
+    commander
+        .command("add")
+        .description("write the current git branch changelog file")
+        .option("-m, --message <string>", "provide changelog message")
+        .option("-t, --type <string>", "provide chagelog type (e.g. \"Added\"")
+        .option("-b, --branch <number>", "provide the branch number")
+        .option("-s, --silent", "run in silent mode using default parameters. Uses current branch number, need to pass message and type")
+        .action(add);
+    commander
+        .command("release")
+        .description("concat changelog files into CHANGELOG.md")
+        .option("-v, --releaseVersion <version>", "provide release version")
+        .option("-d, --date <date>", "provide release date")
+        .option("-s, --silent", "run in silent mode using default parameters. Uses current version and date")
+        .action(release);
+
+    commander.parseAsync(process.argv);
+};
+
+main();
