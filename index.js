@@ -22,6 +22,14 @@ let branchNumber;
 branchNumber = gitRef.match(/(\d)+/);
 branchNumber = branchNumber ? branchNumber[0] : undefined;
 
+commander
+    .option("-i, --init", "copy default config into package")
+    .option("-a, --add [message]", "write the current git branch changelog file")
+    .option("-r, --release", "concat changelogs file into CHANGELOG.md")
+    .option("-s, --silent", "run in silent mode using default parameters");
+
+commander.parse(process.argv);
+
 const questions = {
     writeConfig: {
         type: "confirm",
@@ -60,13 +68,6 @@ const questions = {
         default: date
     },
 };
-
-commander
-    .option("-i, --init", "copy default config into package")
-    .option("-a, --add [message]", "write the current git branch changelog file")
-    .option("-r, --release", "concat changelogs file into CHANGELOG.md");
-
-commander.parse(process.argv);
 
 if (commander.init) {
     let fileDir;
@@ -127,26 +128,35 @@ if (commander.init) {
         console.log(error);
         process.exit();
     }
- 
-    inquirer.prompt(questions.title).then(({ title }) => {
+
+    (commander.silent
+        ? Promise.resolve({ title: (commander.add !== true ? commander.add : "") })
+        : inquirer.prompt(questions.title)
+    ).then(({ title }) => {
         if (title === "") {
             console.log('Changelog title cannot be empty');
             process.exit();
         };
 
-        return inquirer.prompt([questions.type, questions.branch]).then(({ type, branch }) => {
+        return (commander.silent
+            ? Promise.resolve({ title, type: config.types, branch: branchNumber })
+            : inquirer.prompt([questions.type, questions.branch])
+        ).then(({ type, branch }) => {
             const data = JSON.stringify({ title, type, branch }, null, 4);
             fs.writeFileSync(filePath, data);
-            console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json\n`);
-
+            if (!commander.silent) console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json\n`);
+            return branch;
+        }).then((branch) => {
             if (config.autoCommitAdd) {
                 const message = config.changelogMessageAdd && branch
                     ? config.changelogMessageAdd.replace(/BRANCH/g, branch)
                     : "changelog";
-                return git()
+                return git().silent(true)
                         .add([filePath, `${process.cwd()}/changelogs/config.json`])
                         .then(() => git().commit(message)) // could not chain git.add().commit() for unknown reason
-                        .then(() => console.log("Changelog committed, use \`git push\` to write it remotely"));
+                        .then(() => {
+                            if (!commander.silent) console.log("Changelog committed, use \`git push\` to write it remotely");
+                        });
             }
         });
     }).catch((error) => {
@@ -198,15 +208,18 @@ if (commander.init) {
         console.error(error);
         process.exit(); 
     }
-    
-    inquirer.prompt([questions.version, questions.date]).then(({ version, date }) => {
+
+    (commander.silent
+        ? Promise.resolve({ version: `v${version}`, date })
+        : inquirer.prompt([questions.version, questions.date])
+    ).then(({ version, date }) => {
         const data = `## [${version}] - ${date}\n\n${formattedData}\n`;
         const text = `${beginningText}${data}${endText}`;
 
         fs.writeFile(filePath, text, (error) => { 
             if (error) throw error; 
         });
-        console.log(`${data}\nappended in /CHANGELOG.md`);
+        if (!commander.silent) console.log(`${data}\nappended in /CHANGELOG.md`);
     }).then(() => {
         // delete JSON changelog files
         fs.readdirSync(fileDir).forEach((file) => {
@@ -223,10 +236,12 @@ if (commander.init) {
             const message = config.changelogMessageRelease
                 ? config.changelogMessageRelease.replace(/BRANCH/g, branchNumber)
                 : "changelog";
-            return git()
+            return git().silent(true)
                 .add([`${fileDir}/*`, "CHANGELOG.md", `${process.cwd()}/changelogs/config.json`])
                 .then(() => git().commit(message)) // could not chain git.add().commit() for unknown reason
-                .then(() => console.log("Changelog committed, use \`git push\` to write it remotely"));
+                .then(() => {
+                    if (!commander.silent) console.log("Changelog committed, use \`git push\` to write it remotely");
+                });
         }
     }).catch((error) => {
         console.log(error);
