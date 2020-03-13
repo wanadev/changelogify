@@ -19,13 +19,12 @@ And to your package scripts:
     npm run changelog [options]
 
     Options:
-        -i, --init          Copy default configuration file into package to be overwriten.
+        init          Copy default configuration file into package to be overwriten.
                             If the user configuration file is not found, default one will be used.
-        -a, --add [message] Write/overwrite the current git branch changelog file 
+        add           Write/overwrite the current git branch changelog file 
                             into ./changelogs/unreleased/
-        -r, --release       Concat changelogs file from ./changelogs/unreleased/,
+        release       Concat changelogs file from ./changelogs/unreleased/,
                             add them into ./CHANGELOG.md and delete them.
-        -s, --silent        Run in silent mode using default parameters
 
 ## Example
 
@@ -34,7 +33,8 @@ These three changelogs
 ```json
 {
   "title": "feature 1",
-  "type": "Added"
+  "type": "Added",
+  "branch": "7"
 }
 ```
 
@@ -48,7 +48,8 @@ These three changelogs
 ```json
 {
   "title": "lint",
-  "type": "Meta"
+  "type": "Meta",
+  "branch": "8"
 }
 ```
 
@@ -64,24 +65,19 @@ will be concatenated into `CHANGELOG.md`
     ## [v1.0.0] - 2020-1-29
 
     ### Added
-    - feature 1
+    - feature 1 - [7](www.test.com/issues/7)
     - feature 2
     ### Meta
-    - lint
+    - lint - [8](www.test.com/issues/8)
 
-### Silent mode
+## Silent mode
 
-You can run the library in silent mode.
+You can use the `add` and `release` in single, non interactive, commands.
 
-```bash
-# Add
-$ npm run changelog -- -sa message
-# or
-$ npm run changelog -- -a message -s
+```
+npm run changelog -- add -m "feature 1" -t Added -b 7 -s
 
-# Release
-$ npm run changelog -- -sr
+# and
 
-# CAUTION: `npm run changelog -- -as` won't work, as the "s"
-# is taken as a changelog message (same for `ar`)
+npm run changelog -- release -v v1.0.1 -d "2020-3-10" -s
 ```
