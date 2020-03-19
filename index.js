@@ -185,11 +185,6 @@ async function add({ message, type, branch, silent }) {
 
 async function release({ releaseVersion, date, silent }) {
 
-    // if (silent && (!releaseVersion || !date)) {
-    //     console.log("In silent mode, release version and date need to be provided in the command line");
-    //     process.exit();
-    // }
-
     try {
         const {
             paths, 
@@ -215,21 +210,21 @@ async function release({ releaseVersion, date, silent }) {
 
         const changelogs = fs.readdirSync(paths.unrealeasedChangelogsDir).map(file => JSON.parse(fs.readFileSync(`${paths.unrealeasedChangelogsDir}${file}`, 'utf8')));
         
-        const data = changelogs.reduce((acc, { title, type, branch }) => {
+        const data = changelogs.reduce((acc, { message, type, branch }) => {
             if (!acc[type]) acc[type] = [];
-            acc[type].push({ title, branch });
+            acc[type].push({ message, branch });
             return acc;
         }, {})
 
         formattedData = config.types.reduce((text, type) => {
             if (data[type]) {
                 text += `### ${type}\n`;
-                data[type].forEach(({ title, branch }) => {
+                data[type].forEach(({ message, branch }) => {
                     if (branch === "" || !config.gitIssueTemplate) {
-                        return text += `- ${title}\n`;
+                        return text += `- ${message}\n`;
                     }
                     const link = config.gitIssueTemplate.replace(/BRANCH/g, branch);
-                    return text += `- ${title} - ${link}\n`;
+                    return text += `- ${message} - ${link}\n`;
                 });
             }
             return text;
