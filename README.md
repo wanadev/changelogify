@@ -6,7 +6,7 @@ A basic changelog manager made to avoid conflicts at git merge.
 
 Add the package to your project as a dev dependency:
 
-    npm install -D https://github.com/wanadev/changelogify
+    npm install -D changelogify
 
 And to your package scripts:
 
@@ -154,6 +154,10 @@ The `release` command merge every changelog files from `./changelogs/unreleased/
 If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Check [init](https://github.com/wanadev/changelogify#init) if you want to use a custom changelog format.
 
 ## Changelogs
+
+### 1.0.1
+
+- add license
 
 ### 1.0.0
 

@@ -1,6 +1,6 @@
 {
   "name": "changelogify",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A basic changelog manager made to avoid conflicts at git merge",
   "main": "index.js",
   "bin": {
@@ -27,7 +27,7 @@
     "type": "git",
     "url": "git+https://https://github.com/wanadev/changelogify.git"
   },
-  "license": "ISC",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://https://github.com/wanadev/changelogify/issues"
   },
