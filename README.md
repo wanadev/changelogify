@@ -152,3 +152,9 @@ $ npm run changelog -- add -m "Feature 1" -t Added -b 12 -s
 The `release` command merge every changelog files from `./changelogs/unreleased/` and add the new content on `./CHANGELOG.md`.
 
 If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Check [init](https://github.com/wanadev/changelogify#init) if you want to use a custom changelog format.
+
+## Changelogs
+
+### 1.0.0
+
+- initial release
