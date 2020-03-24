@@ -1,6 +1,6 @@
 {
   "name": "changelogify",
-  "version": "1.0.1",
+  "version": "0.1.0",
   "description": "A basic changelog manager made to avoid conflicts at git merge",
   "main": "index.js",
   "bin": {

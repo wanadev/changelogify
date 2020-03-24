@@ -301,6 +301,10 @@ async function main() {
         .action(release);
 
     commander.parseAsync(process.argv);
+
+    if (!process.argv.slice(2).length) {
+        commander.outputHelp();
+    }
 };
 
 main();
