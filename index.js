@@ -210,8 +210,9 @@ async function release({ releaseVersion, date, silent }) {
 
         const changelogs = fs.readdirSync(paths.unrealeasedChangelogsDir).map(file => JSON.parse(fs.readFileSync(`${paths.unrealeasedChangelogsDir}${file}`, 'utf8')));
         
-        const data = changelogs.reduce((acc, { message, type, branch }) => {
+        const data = changelogs.reduce((acc, { message, title, type, branch }) => {
             if (!acc[type]) acc[type] = [];
+            if (!message && title) message = title; // retrocompatibility
             acc[type].push({ message, branch });
             return acc;
         }, {})

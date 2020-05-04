@@ -32,7 +32,7 @@ These three changelogs
 
 ```json
 {
-  "title": "feature 1",
+  "message": "feature 1",
   "type": "Added",
   "branch": "7"
 }
@@ -40,14 +40,14 @@ These three changelogs
 
 ```json
 {
-  "title": "feature 2",
+  "message": "feature 2",
   "type": "Added"
 }
 ```
 
 ```json
 {
-  "title": "lint",
+  "message": "lint",
   "type": "Meta",
   "branch": "8"
 }
