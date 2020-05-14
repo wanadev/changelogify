@@ -115,7 +115,6 @@ async function add({ message, type, branch, silent }) {
 
     if (silent && (!message || !type)) {
         console.log("In silent mode, log message, type and branch number need to be provided in the command line");
-        console.log("In silent mode, ...") // TODO
         process.exit();
     }
 
@@ -145,7 +144,7 @@ async function add({ message, type, branch, silent }) {
     
         if (!message) {
             answers = await inquirer.prompt(questions.message);
-            message = answers.message;
+            message = answers.message.trim();
         }
         if (message === "" || !message) {
             console.log('Changelog title cannot be empty');
@@ -208,11 +207,29 @@ async function release({ releaseVersion, date, silent }) {
             beginningText = fs.readFileSync(paths.emptyChangelog, 'utf8');
         }
 
-        const changelogs = fs.readdirSync(paths.unrealeasedChangelogsDir).map(file => JSON.parse(fs.readFileSync(`${paths.unrealeasedChangelogsDir}${file}`, 'utf8')));
+        _checkJsonFormat = (content) => {
+            if (!content.message && !content.type) return "missing \"message\" and \"type\" keys";
+            if (!content.message) return "missing \"message\" key";
+            if (!content.type) return "missing \"type\" key";
+            if (!config.types.includes(content.type)) return "unknown type";
+            return "";
+        };
+
+        const formatErrors = [];
+        const changelogs = fs.readdirSync(paths.unrealeasedChangelogsDir)
+            .map((file) => {
+                const content = JSON.parse(fs.readFileSync(`${paths.unrealeasedChangelogsDir}${file}`, 'utf8'));
+                const error = _checkJsonFormat(content);
+                if (error === "") return content;
+                formatErrors.push(`${file}: ${error}`);
+            });
+
+        if (formatErrors.length) {
+            throw new Error(`Wrong changelog files format\nIn ${paths.unrealeasedChangelogsDir}${formatErrors.reduce((acc, err) => `${acc}\n - ${err}`, "")}`);
+        }
         
-        const data = changelogs.reduce((acc, { message, title, type, branch }) => {
+        const data = changelogs.reduce((acc, { message, type, branch }) => {
             if (!acc[type]) acc[type] = [];
-            if (!message && title) message = title; // retrocompatibility
             acc[type].push({ message, branch });
             return acc;
         }, {})
@@ -301,9 +318,11 @@ async function main() {
         .option("-s, --silent", "run in silent mode using default parameters. Uses current version and date")
         .action(release);
 
-    commander.parseAsync(process.argv);
+    commander.allowUnknownOption(false);
 
-    if (!process.argv.slice(2).length) {
+    const args = await commander.parseAsync(process.argv);
+
+    if (!args.length) {
         commander.outputHelp();
     }
 };
