@@ -155,6 +155,12 @@ If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Ch
 
 ## Changelogs
 
+### 1.1.0
+
+- throw error when JSON changelog files have wrong format
+- remove changelog messages trailing spaces
+- display helper when wrong cli argument submitted
+
 ### 1.0.1
 
 - add license
