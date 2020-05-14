@@ -144,7 +144,7 @@ async function add({ message, type, branch, silent }) {
     
         if (!message) {
             answers = await inquirer.prompt(questions.message);
-            message = answers.message;
+            message = answers.message.trim();
         }
         if (message === "" || !message) {
             console.log('Changelog title cannot be empty');
