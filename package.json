@@ -25,13 +25,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://https://github.com/wanadev/changelogify.git"
+    "url": "git+https://github.com/wanadev/changelogify.git"
   },
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://https://github.com/wanadev/changelogify/issues"
+    "url": "https://github.com/wanadev/changelogify/issues"
   },
-  "homepage": "https://https://github.com/wanadev/changelogify#readme",
+  "homepage": "https://github.com/wanadev/changelogify#readme",
   "dependencies": {
     "commander": "^4.1.0",
     "inquirer": "^7.0.3",
