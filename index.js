@@ -268,9 +268,7 @@ async function release({ releaseVersion, date, silent }) {
 
         const text = `${beginningText}${formattedChangelogs}${endText}`;
 
-        fs.writeFile(paths.changelog, text, (error) => { 
-            if (error) throw error; 
-        });
+        fs.writeFileSync(paths.changelog, text);
         if (!silent) console.log(`${formattedChangelogs}\nappended in /CHANGELOG.md`);
 
         // delete JSON changelog files
