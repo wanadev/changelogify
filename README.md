@@ -155,6 +155,10 @@ If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Ch
 
 ## Changelogs
 
+### 1.1.2
+
+- synchronous writing in changelog file at release
+
 ### 1.1.1
 
 - fix urls in package.json for npm package
