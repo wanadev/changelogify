@@ -4,6 +4,15 @@ const inquirer = require("inquirer");
 const commander = require("commander");
 const git = require("simple-git/promise");
 
+const ERROR_CODE = {
+    NO_PACKAGE_JSON: 1,
+    SILENT_ADD: 2,
+    EMPTY_MESSAGE: 3,
+    INIT_ERROR: -1,
+    ADD_ERROR: -2,
+    RELEASE_ERROR: -3,
+}
+
 async function begin() {
     const paths = {
         defaultConfig: `${__dirname}/config.json`,
@@ -23,7 +32,7 @@ async function begin() {
     const packageJSONPath = `${process.cwd()}/package.json`;
     if (!fs.existsSync(packageJSONPath)) {
         console.log("Cannot find package.json in project");
-        process.exit();
+        process.exit(ERROR_CODE.NO_PACKAGE_JSON);
     }
     const { version } = require(packageJSONPath);
     const currentVersion = `v${version}`;
@@ -107,7 +116,7 @@ async function init() {
         }
     } catch (error) {
         console.log(error);
-        process.exit();
+        process.exit(ERROR_CODE.INIT_ERROR);
     }
 };
 
@@ -115,7 +124,7 @@ async function add({ message, type, branch, silent }) {
 
     if (silent && (!message || !type)) {
         console.log("In silent mode, log message, type and branch number need to be provided in the command line");
-        process.exit();
+        process.exit(ERROR_CODE.SILENT_ADD);
     }
 
     try {
@@ -148,7 +157,7 @@ async function add({ message, type, branch, silent }) {
         }
         if (message === "" || !message) {
             console.log('Changelog title cannot be empty');
-            process.exit();
+            process.exit(ERROR_CODE.EMPTY_MESSAGE);
         };
     
         if (!type) {
@@ -178,7 +187,7 @@ async function add({ message, type, branch, silent }) {
         }
     } catch (error) {
         console.log(error);
-        process.exit();
+        process.exit(ERROR_CODE.ADD_ERROR);
     }
 };
 
@@ -290,7 +299,7 @@ async function release({ releaseVersion, date, silent }) {
         }
     } catch (error) {
         console.log(error);
-        process.exit();
+        process.exit(ERROR_CODE.RELEASE_ERROR);
     }
 };
 
