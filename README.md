@@ -155,6 +155,10 @@ If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Ch
 
 ## Changelogs
 
+### 1.1.3
+
+- process exits with non-zero code if an error occurs
+
 ### 1.1.2
 
 - synchronous writing in changelog file at release
