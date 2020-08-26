@@ -206,6 +206,9 @@ async function release({ releaseVersion, date, silent }) {
         let endText = "";
         let formattedData;
         let changelog;
+
+        // create dir if doesn't exist
+        fs.existsSync(paths.unrealeasedChangelogsDir) || fs.mkdirSync(paths.unrealeasedChangelogsDir, { recursive: true });
         
         if (fs.existsSync(paths.changelog)) {
             changelog = fs.readFileSync(paths.changelog, 'utf8');
