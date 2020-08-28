@@ -225,10 +225,11 @@ async function release({ releaseVersion, date, silent }) {
         };
 
         const formatErrors = [];
-        const changelogs = fs.existsSync(paths.unrealeasedChangelogsDir)
+        const changelogFiles = fs.existsSync(paths.unrealeasedChangelogsDir)
             ? fs.readdirSync(paths.unrealeasedChangelogsDir)
-            : []
-            .map((file) => {
+            : [];
+
+        const changelogs = changelogFiles.map((file) => {
                 const content = JSON.parse(fs.readFileSync(`${paths.unrealeasedChangelogsDir}${file}`, 'utf8'));
                 const error = _checkJsonFormat(content);
                 if (error === "") return content;
@@ -283,17 +284,16 @@ async function release({ releaseVersion, date, silent }) {
         if (!silent) console.log(`${formattedChangelogs}\nappended in /CHANGELOG.md`);
 
         // delete JSON changelog files
-        if (fs.existsSync(paths.unrealeasedChangelogsDir)) {
-            fs.readdirSync(paths.unrealeasedChangelogsDir).forEach((file) => {
-                fs.access(`${paths.unrealeasedChangelogsDir}${file}`, error => {
-                    if (!error) {
-                        fs.unlinkSync(`${paths.unrealeasedChangelogsDir}/${file}`, (error) => { throw error });
-                    } else {
-                        throw error;
-                    }
-                });
+        changelogFiles.forEach((file) => {
+            fs.access(`${paths.unrealeasedChangelogsDir}${file}`, error => {
+                if (!error) {
+                    fs.unlinkSync(`${paths.unrealeasedChangelogsDir}/${file}`, (error) => { throw error });
+                } else {
+                    throw error;
+                }
             });
-        }
+        });
+
 
         if (config.autoCommitRelease) {
             const message = config.changelogMessageRelease || "changelog";
