@@ -206,9 +206,6 @@ async function release({ releaseVersion, date, silent }) {
         let endText = "";
         let formattedData;
         let changelog;
-
-        // create dir if doesn't exist
-        fs.existsSync(paths.unrealeasedChangelogsDir) || fs.mkdirSync(paths.unrealeasedChangelogsDir, { recursive: true });
         
         if (fs.existsSync(paths.changelog)) {
             changelog = fs.readFileSync(paths.changelog, 'utf8');
@@ -228,7 +225,9 @@ async function release({ releaseVersion, date, silent }) {
         };
 
         const formatErrors = [];
-        const changelogs = fs.readdirSync(paths.unrealeasedChangelogsDir)
+        const changelogs = fs.existsSync(paths.unrealeasedChangelogsDir)
+            ? fs.readdirSync(paths.unrealeasedChangelogsDir)
+            : []
             .map((file) => {
                 const content = JSON.parse(fs.readFileSync(`${paths.unrealeasedChangelogsDir}${file}`, 'utf8'));
                 const error = _checkJsonFormat(content);
@@ -284,15 +283,17 @@ async function release({ releaseVersion, date, silent }) {
         if (!silent) console.log(`${formattedChangelogs}\nappended in /CHANGELOG.md`);
 
         // delete JSON changelog files
-        fs.readdirSync(paths.unrealeasedChangelogsDir).forEach((file) => {
-            fs.access(`${paths.unrealeasedChangelogsDir}${file}`, error => {
-                if (!error) {
-                    fs.unlinkSync(`${paths.unrealeasedChangelogsDir}/${file}`, (error) => { throw error });
-                } else {
-                    throw error;
-                }
+        if (fs.existsSync(paths.unrealeasedChangelogsDir)) {
+            fs.readdirSync(paths.unrealeasedChangelogsDir).forEach((file) => {
+                fs.access(`${paths.unrealeasedChangelogsDir}${file}`, error => {
+                    if (!error) {
+                        fs.unlinkSync(`${paths.unrealeasedChangelogsDir}/${file}`, (error) => { throw error });
+                    } else {
+                        throw error;
+                    }
+                });
             });
-        });
+        }
 
         if (config.autoCommitRelease) {
             const message = config.changelogMessageRelease || "changelog";
