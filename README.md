@@ -155,7 +155,7 @@ If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Ch
 
 ## Changelogs
 
-### 1.1.4
+### 1.1.5
 
 - do not throw error at release when `unrealeased` directory is missing
 
