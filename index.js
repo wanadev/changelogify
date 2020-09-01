@@ -299,7 +299,7 @@ async function release({ releaseVersion, date, silent }) {
         if (config.autoCommitRelease) {
             const message = config.changelogMessageRelease || "changelog";
             const filesToCommit = [paths.changelog, paths.userConfig];
-            if(hasUnreleasedDir) filesToCommit.unshift(paths.unreleasedChangelogsDir);
+            if (hasUnreleasedDir) filesToCommit.unshift(paths.unreleasedChangelogsDir);
 
             await git().silent(true).add(filesToCommit);
             await git().silent(true).commit(message);
