@@ -226,10 +226,11 @@ async function release({ releaseVersion, date, silent }) {
 
         const formatErrors = [];
         const hasUnreleasedDir = fs.existsSync(paths.unreleasedChangelogsDir);
-        const changelogs = hasUnreleasedDir
+        const changelogFiles = hasUnreleasedDir
             ? fs.readdirSync(paths.unreleasedChangelogsDir)
-            : []
-            .map((file) => {
+            : [];
+
+        const changelogs = changelogFiles.map((file) => {
                 const content = JSON.parse(fs.readFileSync(`${paths.unreleasedChangelogsDir}${file}`, 'utf8'));
                 const error = _checkJsonFormat(content);
                 if (error === "") return content;
@@ -284,17 +285,16 @@ async function release({ releaseVersion, date, silent }) {
         if (!silent) console.log(`${formattedChangelogs}\nappended in /CHANGELOG.md`);
 
         // delete JSON changelog files
-        if (hasUnreleasedDir) {
-            fs.readdirSync(paths.unreleasedChangelogsDir).forEach((file) => {
-                fs.access(`${paths.unreleasedChangelogsDir}${file}`, error => {
-                    if (!error) {
-                        fs.unlinkSync(`${paths.unreleasedChangelogsDir}/${file}`, (error) => { throw error });
-                    } else {
-                        throw error;
-                    }
-                });
+        changelogFiles.forEach((file) => {
+            fs.access(`${paths.unreleasedChangelogsDir}${file}`, error => {
+                if (!error) {
+                    fs.unlinkSync(`${paths.unreleasedChangelogsDir}/${file}`, (error) => { throw error });
+                } else {
+                    throw error;
+                }
             });
-        }
+        });
+
 
         if (config.autoCommitRelease) {
             const message = config.changelogMessageRelease || "changelog";
