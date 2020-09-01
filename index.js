@@ -18,7 +18,7 @@ async function begin() {
         defaultConfig: `${__dirname}/config.json`,
         userConfig: `${process.cwd()}/changelogs/config.json`,
         changelogsDir: `${process.cwd()}/changelogs/`,
-        unrealeasedChangelogsDir: `${process.cwd()}/changelogs/unreleased/`,
+        unreleasedChangelogsDir: `${process.cwd()}/changelogs/unreleased/`,
         changelog: `${process.cwd()}/CHANGELOG.md`,
         emptyChangelog: `${__dirname}/EMPTY_CHANGELOG.md`,
     };
@@ -137,17 +137,17 @@ async function add({ message, type, branch, silent }) {
         } = await begin();
     
         // create dir if doesn't exist
-        fs.existsSync(paths.unrealeasedChangelogsDir) || fs.mkdirSync(paths.unrealeasedChangelogsDir, { recursive: true });
+        fs.existsSync(paths.unreleasedChangelogsDir) || fs.mkdirSync(paths.unreleasedChangelogsDir, { recursive: true });
         
         fileName = gitBranch.match(/((\w|-)+)/)[1];
 
         // if file already exists, search for an available name
         let i = 1
-        filePath = `${paths.unrealeasedChangelogsDir}${fileName}_${i}.json`;
+        filePath = `${paths.unreleasedChangelogsDir}${fileName}_${i}.json`;
 
         while(fs.existsSync(filePath)) {
             i++;
-            filePath = `${paths.unrealeasedChangelogsDir}${fileName}_${i}.json`;
+            filePath = `${paths.unreleasedChangelogsDir}${fileName}_${i}.json`;
         }
         fileName = `${fileName}_${i}`;
     
@@ -225,19 +225,20 @@ async function release({ releaseVersion, date, silent }) {
         };
 
         const formatErrors = [];
-        const changelogFiles = fs.existsSync(paths.unrealeasedChangelogsDir)
-            ? fs.readdirSync(paths.unrealeasedChangelogsDir)
+        const hasUnreleasedDir = fs.existsSync(paths.unreleasedChangelogsDir);
+        const changelogFiles = hasUnreleasedDir
+            ? fs.readdirSync(paths.unreleasedChangelogsDir)
             : [];
 
         const changelogs = changelogFiles.map((file) => {
-                const content = JSON.parse(fs.readFileSync(`${paths.unrealeasedChangelogsDir}${file}`, 'utf8'));
+                const content = JSON.parse(fs.readFileSync(`${paths.unreleasedChangelogsDir}${file}`, 'utf8'));
                 const error = _checkJsonFormat(content);
                 if (error === "") return content;
                 formatErrors.push(`${file}: ${error}`);
             });
 
         if (formatErrors.length) {
-            throw new Error(`Wrong changelog files format\nIn ${paths.unrealeasedChangelogsDir}${formatErrors.reduce((acc, err) => `${acc}\n - ${err}`, "")}`);
+            throw new Error(`Wrong changelog files format\nIn ${paths.unreleasedChangelogsDir}${formatErrors.reduce((acc, err) => `${acc}\n - ${err}`, "")}`);
         }
         
         const data = changelogs.reduce((acc, { message, type, branch }) => {
@@ -285,9 +286,9 @@ async function release({ releaseVersion, date, silent }) {
 
         // delete JSON changelog files
         changelogFiles.forEach((file) => {
-            fs.access(`${paths.unrealeasedChangelogsDir}${file}`, error => {
+            fs.access(`${paths.unreleasedChangelogsDir}${file}`, error => {
                 if (!error) {
-                    fs.unlinkSync(`${paths.unrealeasedChangelogsDir}/${file}`, (error) => { throw error });
+                    fs.unlinkSync(`${paths.unreleasedChangelogsDir}/${file}`, (error) => { throw error });
                 } else {
                     throw error;
                 }
@@ -297,7 +298,10 @@ async function release({ releaseVersion, date, silent }) {
 
         if (config.autoCommitRelease) {
             const message = config.changelogMessageRelease || "changelog";
-            await git().silent(true).add([paths.unrealeasedChangelogsDir, paths.changelog, paths.userConfig]);
+            const filesToCommit = [paths.changelog, paths.userConfig];
+            if (hasUnreleasedDir) filesToCommit.unshift(paths.unreleasedChangelogsDir);
+
+            await git().silent(true).add(filesToCommit);
             await git().silent(true).commit(message);
             if (!silent) console.log("Changelog committed, use \`git push\` to write it remotely");
         }
