@@ -97,7 +97,9 @@ With `init`, the default configuration is copied in `./changelogs/config.json`, 
     // automatic commit for `release` command
     "autoCommitRelease": true,
     // associated commit message.
-    "changelogMessageRelease": "changelog"
+    "changelogMessageRelease": "changelog",
+    // default command if none is passed ("", "add", "init" or "release")
+    "defaultCommand": "add"
 }
 ```
 
@@ -154,6 +156,10 @@ The `release` command merge every changelog files from `./changelogs/unreleased/
 If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Check [init](https://github.com/wanadev/changelogify#init) if you want to use a custom changelog format.
 
 ## Changelogs
+
+### 1.1.7
+
+- add default command option in config 
 
 ### 1.1.6
 
