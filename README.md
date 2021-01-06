@@ -26,6 +26,8 @@ And to your package scripts:
         release       Concat changelogs file from ./changelogs/unreleased/,
                             add them into ./CHANGELOG.md and delete them.
 
+If no option is specified, `add` is used. This can be changed or removed to display the helper above, see `defaultCommand` in configuration file.
+
 ## Example
 
 These three changelogs
