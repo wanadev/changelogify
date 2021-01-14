@@ -26,6 +26,8 @@ And to your package scripts:
         release       Concat changelogs file from ./changelogs/unreleased/,
                             add them into ./CHANGELOG.md and delete them.
 
+If no option is specified, `add` is used. This can be changed or removed to display the helper above, see `defaultCommand` in configuration file.
+
 ## Example
 
 These three changelogs
@@ -97,7 +99,9 @@ With `init`, the default configuration is copied in `./changelogs/config.json`, 
     // automatic commit for `release` command
     "autoCommitRelease": true,
     // associated commit message.
-    "changelogMessageRelease": "changelog"
+    "changelogMessageRelease": "changelog",
+    // default command if none is passed ("", "add", "init" or "release")
+    "defaultCommand": "add"
 }
 ```
 
@@ -154,6 +158,10 @@ The `release` command merge every changelog files from `./changelogs/unreleased/
 If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Check [init](https://github.com/wanadev/changelogify#init) if you want to use a custom changelog format.
 
 ## Changelogs
+
+### 1.1.7
+
+- add default command option in config 
 
 ### 1.1.6
 

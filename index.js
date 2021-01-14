@@ -44,7 +44,7 @@ async function begin() {
         writeConfig: {
             type: "confirm",
             name: "writeConfig",
-            message: "Changelog config already exists in your project. Write new settings?",
+            message: "Config file already exists. Write new settings? (This will not overwrite existing ones)",
             default: false
         },
         message: {
@@ -295,7 +295,6 @@ async function release({ releaseVersion, date, silent }) {
             });
         });
 
-
         if (config.autoCommitRelease) {
             const message = config.changelogMessageRelease || "changelog";
             const filesToCommit = [paths.changelog, paths.userConfig];
@@ -335,7 +334,15 @@ async function main() {
 
     commander.allowUnknownOption(false);
 
-    const args = await commander.parseAsync(process.argv);
+    const {
+        config,
+    } = await begin();
+
+    const argv = process.argv.length > 2
+        ? process.argv
+        : process.argv.concat(config.defaultCommand);
+
+    const args = await commander.parseAsync(argv);
 
     if (!args.length) {
         commander.outputHelp();

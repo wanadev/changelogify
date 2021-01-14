@@ -12,5 +12,6 @@
     "autoCommitAdd": true,
     "changelogMessageAdd": "Add changelog entry for #BRANCH",
     "autoCommitRelease": true,
-    "changelogMessageRelease": "changelog"
+    "changelogMessageRelease": "changelog",
+    "defaultCommand": "add"
 }
