@@ -90,12 +90,13 @@ With `init`, the default configuration is copied in `./changelogs/config.json`, 
         "Security",
         "Meta"
     ],
-    // link to git issue. `BRANCH` is replaced by branch number from changelog entry
-    "gitIssueTemplate": "[BRANCH](www.test.com/issues/BRANCH)",
+    // link to git issue. `NUMBER` is current branch number by default
+    // if empty, no link will be provided
+    "gitIssueTemplate": "[NUMBER](www.test.com/issues/NUMBER)",
     // automatic commit for `add` command
     "autoCommitAdd": true,
-    // associated commit message. `BRANCH` is replaced by branch number from changelog entry
-    "changelogMessageAdd": "Add changelog entry for #BRANCH",
+    // associated commit message. `NUMBER` is current branch number by default
+    "changelogMessageAdd": "Add changelog entry for #NUMBER",
     // automatic commit for `release` command
     "autoCommitRelease": true,
     // associated commit message.
@@ -158,6 +159,11 @@ The `release` command merge every changelog files from `./changelogs/unreleased/
 If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Check [init](https://github.com/wanadev/changelogify#init) if you want to use a custom changelog format.
 
 ## Changelogs
+
+### 1.2.0 (still wip)
+
+- better handling of branch number beginning by 0 or by letters
+- clarify how to link an issue from a branch number
 
 ### 1.1.7
 
