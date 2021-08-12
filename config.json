@@ -8,7 +8,7 @@
         "Security",
         "Meta"
     ],
-    "gitIssueTemplate": "[NUMBER](www.test.com/issues/NUMBER)",
+    "gitIssueTemplate": "[NUMBER](www.example.com/issues/NUMBER)",
     "autoCommitAdd": true,
     "changelogMessageAdd": "Add changelog entry for #NUMBER",
     "autoCommitRelease": true,

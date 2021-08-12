@@ -67,10 +67,10 @@ will be concatenated into `CHANGELOG.md`
     ## [v1.0.0] - 2020-1-29
 
     ### Added
-    - feature 1 - [7](www.test.com/issues/7)
+    - feature 1 - [7](www.example.com/issues/7)
     - feature 2
     ### Meta
-    - lint - [8](www.test.com/issues/8)
+    - lint - [8](www.example.com/issues/8)
 
 ## Commands
 
@@ -92,7 +92,7 @@ With `init`, the default configuration is copied in `./changelogs/config.json`, 
     ],
     // link to git issue. `NUMBER` is current branch number by default
     // if empty, no link will be provided
-    "gitIssueTemplate": "[NUMBER](www.test.com/issues/NUMBER)",
+    "gitIssueTemplate": "[NUMBER](www.example.com/issues/NUMBER)",
     // automatic commit for `add` command
     "autoCommitAdd": true,
     // associated commit message. `NUMBER` is current branch number by default
