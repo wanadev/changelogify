@@ -164,6 +164,10 @@ If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Ch
 
 - better handling of branch number beginning by 0 or by letters
 - clarify how to link an issue from a branch number
+- cleanup: 
+  - divide into several files
+  - make changelogify an ESM
+  - lint
 
 ### 1.1.7
 
