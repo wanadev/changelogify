@@ -8,9 +8,9 @@
         "Security",
         "Meta"
     ],
-    "gitIssueTemplate": "[BRANCH](www.test.com/issues/BRANCH)",
+    "gitIssueTemplate": "[NUMBER](www.example.com/issues/NUMBER)",
     "autoCommitAdd": true,
-    "changelogMessageAdd": "Add changelog entry for #BRANCH",
+    "changelogMessageAdd": "Add changelog entry for #NUMBER",
     "autoCommitRelease": true,
     "changelogMessageRelease": "changelog",
     "defaultCommand": "add"

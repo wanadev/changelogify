@@ -27,7 +27,7 @@ async function begin() {
 
     const gitBranch = await git().silent(true).raw(["symbolic-ref", "--short", "HEAD"]);
     let branchNumber = gitBranch.match(/(\d)+/);
-    branchNumber = branchNumber ? branchNumber[0] : undefined;
+    branchNumber = branchNumber && Number(branchNumber[0]) ? branchNumber[0] : undefined;
     
     const packageJSONPath = `${process.cwd()}/package.json`;
     if (!fs.existsSync(packageJSONPath)) {
@@ -58,10 +58,10 @@ async function begin() {
             message: 'Entry type?',
             choices: config.types,
         },
-        branch: {
+        issue: {
             type: "input",
-            name: "branch",
-            message: "What's your git branch number? (Optional)",
+            name: "issue",
+            message: "What's your git issue number? (Optional)",
             default: branchNumber
         },
         version: {
@@ -120,7 +120,7 @@ async function init() {
     }
 };
 
-async function add({ message, type, branch, silent }) {
+async function add({ message, type, issue, silent }) {
 
     if (silent && (!message || !type)) {
         console.log("In silent mode, log message, type and branch number need to be provided in the command line");
@@ -165,21 +165,21 @@ async function add({ message, type, branch, silent }) {
             type = answers.type;
         }
 
-        if (!branch) {
-            if (silent) branch = branchNumber;
+        if (!issue) {
+            if (silent) issue = branchNumber;
             else {
-                const answers = await inquirer.prompt(questions.branch);
-            branch = answers.branch;
+                const answers = await inquirer.prompt(questions.issue);
+            issue = answers.issue;
             }
         }
 
-        const data = JSON.stringify({ message, type, branch }, null, 4);
+        const data = JSON.stringify({ message, type, issue }, null, 4);
         fs.writeFileSync(filePath, data);
         if (!silent) console.log(`${data}\nwritten in /changelogs/unreleased/${fileName}.json\n`);
     
         if (config.autoCommitAdd) {
-            const commitMessage = config.changelogMessageAdd && branch
-                ? config.changelogMessageAdd.replace(/BRANCH/g, branch)
+            const commitMessage = config.changelogMessageAdd && issue
+                ? config.changelogMessageAdd.replace(/NUMBER/g, issue)
                 : "changelog";
             await git().silent(true).add([filePath, paths.userConfig]);
             await git().silent(true).commit(commitMessage);
@@ -241,20 +241,21 @@ async function release({ releaseVersion, date, silent }) {
             throw new Error(`Wrong changelog files format\nIn ${paths.unreleasedChangelogsDir}${formatErrors.reduce((acc, err) => `${acc}\n - ${err}`, "")}`);
         }
         
-        const data = changelogs.reduce((acc, { message, type, branch }) => {
+        const data = changelogs.reduce((acc, { message, type, issue, branch }) => {
+            const issueNumber = issue ?? branch; // retrocompatibility
             if (!acc[type]) acc[type] = [];
-            acc[type].push({ message, branch });
+            acc[type].push({ message, issueNumber });
             return acc;
         }, {})
 
         formattedData = config.types.reduce((text, type) => {
             if (data[type]) {
                 text += `### ${type}\n`;
-                data[type].forEach(({ message, branch }) => {
-                    if (branch === "" || !config.gitIssueTemplate) {
+                data[type].forEach(({ message, issueNumber }) => {
+                    if (issueNumber === "" || !config.gitIssueTemplate) {
                         return text += `- ${message}\n`;
                     }
-                    const link = config.gitIssueTemplate.replace(/BRANCH/g, branch);
+                    const link = config.gitIssueTemplate.replace(/NUMBER/g, issueNumber);
                     return text += `- ${message} - ${link}\n`;
                 });
             }
@@ -321,8 +322,8 @@ async function main() {
         .description("write the current git branch changelog file")
         .option("-m, --message <string>", "provide changelog message")
         .option("-t, --type <string>", "provide chagelog type (e.g. \"Added\"")
-        .option("-b, --branch <number>", "provide the branch number")
-        .option("-s, --silent", "run in silent mode using default parameters. Uses current branch number, need to pass message and type")
+        .option("-i, --issue <number>", "provide the issue number")
+        .option("-s, --silent", "run in silent mode using default parameters. Uses current branch number as issue number, need to pass message and type")
         .action(add);
     commander
         .command("release")
