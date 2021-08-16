@@ -8,15 +8,9 @@ Add the package to your project as a dev dependency:
 
     npm install -D changelogify
 
-And to your package scripts:
-
-    "scripts": {
-        "changelog": "node node_modules/.bin/changelogify"
-    },
-
 ## Usage
 
-    npm run changelog [options]
+    changelogify [options]
 
     Options:
         init          Copy default configuration file into package to be overwriten.
@@ -117,7 +111,7 @@ The `add` command ask you to write a changelog entry, choose an entry type and a
 It will write it in a unique file in `./changelogs/unreleased/`.
 
 ```bash
-$ npm run changelog -- add
+$ npx changelogify add
 
 > test_changelog@1.0.0 changelog /home/robin/Documents/wanadev/test_changelog
 > node node_modules/changelogify/index.js "add"
@@ -138,15 +132,15 @@ Changelog committed, use `git push` to write it remotely
 You can also pass parameters to it.
 
 ```bash 
-$ npm run changelog -- add --message "Feature 1" --type Added --branch 12
+$ npx changelogify add --message "Feature 1" --type Added --branch 12
 # or
-$ npm run changelog -- add -m "Feature 1" -t Added -b 12
+$ npx changelogify add -m "Feature 1" -t Added -b 12
 ```
 
 And run it on silent mode.
 
 ```bash
-$ npm run changelog -- add -m "Feature 1" -t Added -b 12 -s
+$ npx changelogify add -m "Feature 1" -t Added -b 12 -s
 
 > test_changelog@1.0.0 changelog /home/robin/Documents/wanadev/test_changelog
 > node node_modules/changelogify/index.js "add" "-m" "Feature 1" "-t" "Added" "-b" "12" "-s"
