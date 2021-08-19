@@ -162,6 +162,7 @@ If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Ch
   - divide into several files
   - make changelogify an ESM
   - lint
+- check for missing config before `add` and `release` commands 
 
 ### 1.1.7
 
