@@ -11,16 +11,19 @@ const __dirname = path.dirname(__filename);
 const { ERROR_CODE } = constants;
 
 async function checkConfig(options) {
+    if (!fs.existsSync(options.paths.userConfig)) {
+        console.info("You need to install the changelogify configuration to your project,\nPlease run the `init` command first.");
+        process.exit();
+    }
     const defaultConfig = JSON.parse(await fs.promises.readFile(new URL(options.paths.defaultConfig, import.meta.url)));
 
     const configKeys = Object.keys(options.config);
     const defaultConfigKeys = Object.keys(defaultConfig);
 
-    const configUpToDate = configKeys.length === defaultConfigKeys.length
-        && configKeys.every((key) => defaultConfigKeys.includes(key));
+    const configUpToDate = defaultConfigKeys.every((key) => configKeys.includes(key));
 
     if (!configUpToDate) {
-        console.info("You need to update your local configuration, please run the `init` command.");
+        console.info("You need to update the changelogify configuration of your project,\nPlease run the `init` command first.");
         process.exit();
     }
 }
