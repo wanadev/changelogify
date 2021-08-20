@@ -154,7 +154,7 @@ If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Ch
 
 ## Changelogs
 
-### 1.2.0 (still wip)
+### 1.2.0
 
 - better handling of branch number beginning by 0 or by letters
 - clarify how to link an issue from a branch number
