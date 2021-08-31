@@ -24,7 +24,7 @@ async function init(options) {
         } else {
             const { writeConfig } = await inquirer.prompt(questions.writeConfig);
             if (!writeConfig) return;
-            const defaultConfig = JSON.parse(await fs.promises.readFile(new URL(paths.defaultConfig, import.meta.url)));
+            const defaultConfig = JSON.parse(await fs.promises.readFile(paths.defaultConfig));
             const newConfig = { ...defaultConfig, ...config };
             const data = JSON.stringify(newConfig, null, 4);
             fs.writeFile(paths.userConfig, data, (error) => {

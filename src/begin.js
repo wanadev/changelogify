@@ -15,7 +15,7 @@ async function checkConfig(options) {
         console.info("You need to install the changelogify configuration to your project,\nPlease run the `init` command first.");
         process.exit();
     }
-    const defaultConfig = JSON.parse(await fs.promises.readFile(new URL(options.paths.defaultConfig, import.meta.url)));
+    const defaultConfig = JSON.parse(await fs.promises.readFile(options.paths.defaultConfig));
 
     const configKeys = Object.keys(options.config);
     const defaultConfigKeys = Object.keys(defaultConfig);
@@ -41,7 +41,7 @@ async function begin() {
 
     const configPath = fs.existsSync(paths.userConfig) ? paths.userConfig : paths.defaultConfig;
 
-    const config = JSON.parse(await fs.promises.readFile(new URL(configPath, import.meta.url)));
+    const config = JSON.parse(await fs.promises.readFile(configPath));
 
     const gitBranch = await git().silent(true).raw(["symbolic-ref", "--short", "HEAD"]);
     let branchNumber = gitBranch.match(/(\d)+/);
@@ -51,7 +51,7 @@ async function begin() {
         console.info("Cannot find package.json in project");
         process.exit(ERROR_CODE.NO_PACKAGE_JSON);
     }
-    const { version } = JSON.parse(await fs.promises.readFile(new URL(paths.packageJson, import.meta.url)));
+    const { version } = JSON.parse(await fs.promises.readFile(paths.packageJson));
     const currentVersion = `v${version}`;
 
     const today = new Date();
