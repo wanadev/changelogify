@@ -6,6 +6,7 @@
         "Removed",
         "Fixed",
         "Security",
+        "Tests",
         "Meta"
     ],
     "gitIssueTemplate": "[NUMBER](www.example.com/issues/NUMBER)",

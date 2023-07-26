@@ -154,6 +154,10 @@ If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Ch
 
 ## Changelogs
 
+### 1.2.2 (still in progress)
+
+- add a new changelog type for tests
+
 ### 1.2.1
 
 - fix fs use of URL on Windows
