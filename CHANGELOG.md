@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.3.0] - 2025-2-12
+
+### Added
+- Use self to generate a changelog - [37](https://github.com/wanadev/changelogify/issues/37)
+
 ## [v1.2.2] - 2025-2-12
 
 - add a new changelog type for tests
