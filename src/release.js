@@ -115,8 +115,8 @@ async function release({ releaseVersion, date, silent }, options) {
             const filesToCommit = [paths.changelog, paths.userConfig];
             if (hasUnreleasedDir) filesToCommit.unshift(paths.unreleasedChangelogsDir);
 
-            await git().silent(true).add(filesToCommit);
-            await git().silent(true).commit(message);
+            await git().add(filesToCommit);
+            await git().commit(message);
             if (!silent) console.info("Changelog committed, use `git push` to write it remotely");
         }
     } catch (error) {
