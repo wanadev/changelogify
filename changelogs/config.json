@@ -9,7 +9,7 @@
         "Tests",
         "Meta"
     ],
-    "gitIssueTemplate": "[NUMBER](www.example.com/issues/NUMBER)",
+    "gitIssueTemplate": "[NUMBER](https://github.com/wanadev/changelogify/issues/NUMBER)",
     "autoCommitAdd": true,
     "changelogMessageAdd": "Add changelog entry for #NUMBER",
     "autoCommitRelease": true,
