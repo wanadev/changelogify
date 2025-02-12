@@ -68,9 +68,10 @@ async function release({ releaseVersion, date, silent }, options) {
                 data[type].forEach(({ message, issueNumber }) => {
                     if (issueNumber === "" || !config.gitIssueTemplate) {
                         text = `${text}- ${message}\n`;
+                    } else {
+                        const link = config.gitIssueTemplate.replace(/NUMBER/g, issueNumber);
+                        text = `${text}- ${message} - ${link}\n`;
                     }
-                    const link = config.gitIssueTemplate.replace(/NUMBER/g, issueNumber);
-                    text = `${text}- ${message} - ${link}\n`;
                 });
             }
             return text;
