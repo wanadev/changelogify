@@ -13,6 +13,6 @@
     "autoCommitAdd": true,
     "changelogMessageAdd": "Add changelog entry for #NUMBER",
     "autoCommitRelease": true,
-    "changelogMessageRelease": "changelog",
+    "changelogMessageRelease": "Changelog for release #VERSION",
     "defaultCommand": "add"
 }

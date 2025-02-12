@@ -112,7 +112,8 @@ async function release({ releaseVersion, date, silent }, options) {
         });
 
         if (config.autoCommitRelease) {
-            const message = config.changelogMessageRelease || "changelog";
+            let message = config.changelogMessageRelease || "changelog";
+            message = message.replace(/#VERSION/g, releaseVersion);
             const filesToCommit = [paths.changelog, paths.userConfig];
             if (hasUnreleasedDir) filesToCommit.unshift(paths.unreleasedChangelogsDir);
 
