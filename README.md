@@ -154,9 +154,11 @@ If `./CHANGELOG.md` doesn't exist, it is created from `./EMPTY_CHANGELOG.md`. Ch
 
 ## Changelogs
 
-### 1.2.2 (still in progress)
+### 1.2.2
 
 - add a new changelog type for tests
+- update simple-git for security issue
+- fix duplicated line in changelog when no issue number
 
 ### 1.2.1
 

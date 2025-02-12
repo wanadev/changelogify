@@ -68,8 +68,8 @@ async function add({ message, type, issue, silent }, options) {
             const commitMessage = config.changelogMessageAdd && issue
                 ? config.changelogMessageAdd.replace(/NUMBER/g, issue)
                 : "changelog";
-            await git().silent(true).add([filePath, paths.userConfig]);
-            await git().silent(true).commit(commitMessage);
+            await git().add([filePath, paths.userConfig]);
+            await git().commit(commitMessage);
             if (!silent) console.info("Changelog committed, use `git push` to write it remotely");
         }
     } catch (error) {
