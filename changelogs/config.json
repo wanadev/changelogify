@@ -1,0 +1,18 @@
+{
+    "types": [
+        "Added",
+        "Changed",
+        "Deprecated",
+        "Removed",
+        "Fixed",
+        "Security",
+        "Tests",
+        "Meta"
+    ],
+    "gitIssueTemplate": "[NUMBER](https://github.com/wanadev/changelogify/issues/NUMBER)",
+    "autoCommitAdd": true,
+    "changelogMessageAdd": "Add changelog entry for #NUMBER",
+    "autoCommitRelease": true,
+    "changelogMessageRelease": "changelog",
+    "defaultCommand": "add"
+}
