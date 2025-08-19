@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import commander from "commander";
+import { program } from "commander";
 
 import { begin, checkConfig } from "./begin.js";
 import init from "./init.js";
@@ -20,11 +20,12 @@ async function main() {
         process.exit(ERROR_CODE.CONFIG_ERROR);
     }
 
-    commander
+    program
         .command("init")
         .description("copy default config into package")
         .action(() => init(options));
-    commander
+
+    program
         .command("add")
         .description("write the current git branch changelog file")
         .option("-m, --message <string>", "provide changelog message")
@@ -35,7 +36,8 @@ async function main() {
             await checkConfig(options);
             add(args, options);
         });
-    commander
+
+    program
         .command("release")
         .description("concat changelog files into CHANGELOG.md")
         .option("-v, --releaseVersion <version>", "provide release version")
@@ -46,16 +48,16 @@ async function main() {
             release(args, options);
         });
 
-    commander.allowUnknownOption(false);
+    program.allowUnknownOption(false);
 
     const argv = process.argv.length > 2
         ? process.argv
         : process.argv.concat(options.config.defaultCommand);
 
-    const args = await commander.parseAsync(argv);
+    const args = await program.parseAsync(argv);
 
     if (!args.length) {
-        commander.outputHelp();
+        program.outputHelp();
     }
 }
 
