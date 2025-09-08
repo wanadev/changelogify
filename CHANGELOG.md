@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.4.0] - 2025-9-8
+
+### Security
+- Fix possible vulnerabilites and security issues by updating dependencies - [39](https://github.com/wanadev/changelogify/issues/39)
+
 ## [v1.3.0] - 2025-2-12
 
 ### Added
