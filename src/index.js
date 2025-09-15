@@ -54,7 +54,7 @@ async function main() {
         ? process.argv
         : process.argv.concat(options.config.defaultCommand);
 
-    const args = await program.parseAsync(argv);
+    const { args } = await program.parseAsync(argv);
 
     if (!args.length) {
         program.outputHelp();
