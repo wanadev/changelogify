@@ -1,0 +1,5 @@
+{
+    "message": "Fix usage instructions printed with add and release commands",
+    "type": "Fixed",
+    "issue": "42"
+}
