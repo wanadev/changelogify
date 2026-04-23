@@ -12,7 +12,7 @@
     "url": "http://wanadev.fr/"
   },
   "scripts": {
-    "changelog": "changelogify",
+    "changelog": "npx changelogify",
     "changelog-version": "npm run changelog -- release -s && git add changelogs/ CHANGELOG.md",
     "version": "npm run changelog-version"
   },
