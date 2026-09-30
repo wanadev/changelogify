@@ -1,0 +1,5 @@
+{
+    "message": "Update some packages to fix possible vulnerabilities",
+    "type": "Security",
+    "issue": ""
+}
