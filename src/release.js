@@ -1,6 +1,6 @@
 import fs from "fs";
 import inquirer from "inquirer";
-import git from "simple-git";
+import { simpleGit } from "simple-git";
 
 import constants from "./constants.js";
 
@@ -117,8 +117,8 @@ async function release({ releaseVersion, date, silent }, options) {
             const filesToCommit = [paths.changelog, paths.userConfig];
             if (hasUnreleasedDir) filesToCommit.unshift(paths.unreleasedChangelogsDir);
 
-            await git().add(filesToCommit);
-            await git().commit(message);
+            await simpleGit().add(filesToCommit);
+            await simpleGit().commit(message);
             if (!silent) console.info("Changelog committed, use `git push` to write it remotely");
         }
     } catch (error) {
