@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import inquirer from "inquirer";
 import { simpleGit } from "simple-git";
 
@@ -69,7 +69,7 @@ async function release({ releaseVersion, date, silent }, options) {
                     if (issueNumber === "" || !config.gitIssueTemplate) {
                         text = `${text}- ${message}\n`;
                     } else {
-                        const link = config.gitIssueTemplate.replace(/NUMBER/g, issueNumber);
+                        const link = config.gitIssueTemplate.replaceAll("NUMBER", issueNumber);
                         text = `${text}- ${message} - ${link}\n`;
                     }
                 });
@@ -113,7 +113,7 @@ async function release({ releaseVersion, date, silent }, options) {
 
         if (config.autoCommitRelease) {
             let message = config.changelogMessageRelease || "changelog";
-            message = message.replace(/#VERSION/g, releaseVersion);
+            message = message.replaceAll("#VERSION", releaseVersion);
             const filesToCommit = [paths.changelog, paths.userConfig];
             if (hasUnreleasedDir) filesToCommit.unshift(paths.unreleasedChangelogsDir);
 

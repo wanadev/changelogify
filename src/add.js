@@ -66,7 +66,7 @@ async function add({ message, type, issue, silent }, options) {
 
         if (config.autoCommitAdd) {
             const commitMessage = config.changelogMessageAdd && issue
-                ? config.changelogMessageAdd.replace(/NUMBER/g, issue)
+                ? config.changelogMessageAdd.replaceAll("NUMBER", issue)
                 : "changelog";
             await simpleGit().add([filePath, paths.userConfig]);
             await simpleGit().commit(commitMessage);

@@ -44,7 +44,7 @@ async function begin() {
     const config = JSON.parse(await fs.promises.readFile(configPath));
 
     const gitBranch = await simpleGit().raw(["symbolic-ref", "--short", "HEAD"]);
-    let branchNumber = gitBranch.match(/(\d)+/);
+    let branchNumber = new RegExp(/(\d)+/).exec(gitBranch);
     branchNumber = branchNumber && Number(branchNumber[0]) ? branchNumber[0] : undefined;
 
     if (!fs.existsSync(paths.packageJson)) {
