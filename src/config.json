@@ -11,7 +11,7 @@
     ],
     "gitIssueTemplate": "[NUMBER](www.example.com/issues/NUMBER)",
     "autoCommitAdd": true,
-    "changelogMessageAdd": "Add changelog entry for #NUMBER",
+    "changelogMessageAdd": "meta(changelog): Add changelog entry for #NUMBER",
     "autoCommitRelease": true,
     "changelogMessageRelease": "Changelog for release #VERSION",
     "defaultCommand": "add"
