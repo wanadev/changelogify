@@ -1,6 +1,6 @@
-import fs from "fs";
+import fs from "node:fs";
 import inquirer from "inquirer";
-import git from "simple-git";
+import { simpleGit } from "simple-git";
 
 import constants from "./constants.js";
 
@@ -66,10 +66,10 @@ async function add({ message, type, issue, silent }, options) {
 
         if (config.autoCommitAdd) {
             const commitMessage = config.changelogMessageAdd && issue
-                ? config.changelogMessageAdd.replace(/NUMBER/g, issue)
+                ? config.changelogMessageAdd.replaceAll("NUMBER", issue)
                 : "changelog";
-            await git().add([filePath, paths.userConfig]);
-            await git().commit(commitMessage);
+            await simpleGit().add([filePath, paths.userConfig]);
+            await simpleGit().commit(commitMessage);
             if (!silent) console.info("Changelog committed, use `git push` to write it remotely");
         }
     } catch (error) {
